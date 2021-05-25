@@ -1,6 +1,13 @@
-dfgsdfgsd
-#MDEF abc
-ja$1cie
-xzcz$2lol
+aaaabbaaa
+#MDEF name
+XX$0YY
+sadfa$1aa$2$3
 #MEND
-#MCALL abc XD
+#MCALL name QQ,WW,EE,RR
+
+#MDEF druga
+XX$0YY
+sadfa$1aa$2$3
+#MEND
+
+#MCALL druga QQ,WW,EE,GRR

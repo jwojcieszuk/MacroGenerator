@@ -1,7 +1,8 @@
 class Macro:
     
-    def __init__(self, name, body, parameters_positions):
+    def __init__(self, name, body, num_of_params):
         self.name = name
         self.body = body
-        self.parameters_positions = parameters_positions
+        self.num_of_params = num_of_params
     
+
