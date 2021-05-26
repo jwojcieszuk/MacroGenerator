@@ -1,0 +1,11 @@
+aaaabbaaa
+#MDEF name
+XX$0YY
+#MDEF nested
+bububu
+#MEND
+sadfa$1aa$2$3
+#MEND
+
+#MCALL name QQ,WW,EE,RR
+#MCALL nested

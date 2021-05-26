@@ -5,9 +5,21 @@ sadfa$1aa$2$3
 #MEND
 #MCALL name QQ,WW,EE,RR
 
-#MDEF dr@uga
+#MDEF second
 XX$0YY
 sadfa$1aa$2$3
 #MEND
 
-#MCALL druga QQ,WW,EE,GRR
+#MCALL second QQ,WW,EE,GRR
+
+asdfasd#MDEF smth
+aaaabaa
+dddfffd
+#MEND
+
+xxxxx##
+sdsdsd
+
+
+
+

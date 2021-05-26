@@ -1,0 +1,16 @@
+warning! line:2 Incorrect macro name.
+	 Proper name should consist only of [Aa-Zz] letters.
+	 Skipping this macro definition.
+warning! line:6 Macro with name:'name' isn't available in the library.
+	 Skipping this macro call.
+warning! line:15 Incorrect '#' usage.
+	 To use any macro operation, it has to be provided at the beggining of the line.
+	 Treating it as a free text.
+warning! line:18 '#MEND' symbol found in input file, but #MDEF haven't been used before.
+	 Skipping this symbol.
+warning! line:20 Incorrect '#' usage.
+	 To use any macro operation, it has to be provided at the beggining of the line.
+	 Treating it as a free text.
+warning! line:20 Incorrect '#' usage.
+	 To use any macro operation, it has to be provided at the beggining of the line.
+	 Treating it as a free text.
