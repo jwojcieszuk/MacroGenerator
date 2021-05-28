@@ -21,7 +21,6 @@ class Macro_Generator:
             once any special symbol is encountered, proper function is called
         """
         line_counter = 0
-        mdef_nested_line = []
         self.output_file = open("output.txt", "w+")
         self.log_file = open("log.txt", "w+")
 
@@ -32,19 +31,16 @@ class Macro_Generator:
             mend_flag = False
             mcall_flag = False
             line = line.strip()
+
             if line[0:6] == symbols.MACRO_DEFINITION:
-                self.text_level += 1
-                """means that there is nested macro definition"""
-                if self.text_level > 1:
-                    mdef_nested_line.append(line_counter)
-                else:
+                if self.text_level == 0:
                     mdef_line = line_counter
+                self.text_level += 1
 
             elif line[0:5] == symbols.MACRO_END:
                 mend_flag = True
                 if self.text_level > 1:
-                    self.__handle_mend(lines, mdef_nested_line[-1], line_counter)
-                    mdef_nested_line.remove(mdef_nested_line[-1])
+                    self.text_level -= 1
                 else:
                     self.__handle_mend(lines, mdef_line, line_counter)
 
@@ -76,6 +72,7 @@ class Macro_Generator:
             body without parameters and number of parameters
         """
         splitted_line = macro_text[0].split(' ')
+
         name = splitted_line[1]
         """checking whether name consists only of letters [Aa-Zz]"""
         if name.strip().isalpha() == True:
@@ -118,9 +115,6 @@ class Macro_Generator:
             warn = self.warning.write_warning(
                 line_counter+1, self.log_library.incorrect_mend_usage())
             self.log_file.write(warn)
-        elif self.text_level > 1:
-            self.text_level -= 1
-            self.__handle_mdef(mdef_line, lines[mdef_line:line_counter+1])
         else:
             self.text_level -= 1
             self.__handle_mdef(mdef_line, lines[mdef_line:line_counter+1])
@@ -138,30 +132,51 @@ class Macro_Generator:
         if macro != None:
             if len(splitted_line) > 1:
                 actual_parameters = splitted_line[1].split(',')
-                self.__execute_macro(macro, actual_parameters)
+                self.__execute_macro(macro, actual_parameters, mcall_line)
             else:
-                self.__execute_macro(macro, [])
+                self.__execute_macro(macro, [], mcall_line)
         else:
             warn = self.warning.write_warning(
                 mcall_line+1, self.log_library.macro_not_found(splitted_line[0]))
             self.log_file.write(warn)
 
-    def __execute_macro(self, macro, actual_parameters):
+    def __execute_macro(self, macro, actual_parameters, mcall_line):
         """
             parameters: macro to be executed
             executing macro means remove #MCALL line and in its place add macro body with parameters placed 
             as a result writes macro body to output file
         """
         if macro.num_of_params > len(actual_parameters):
-            print("There wasn't enough actual_parameters passed!")
+            warn = self.warning.write_warning(
+                mcall_line+1, self.log_library.not_enough_actual_parameters(macro.name, macro.num_of_params))
+            self.log_file.write(warn)
             return
         counter = 0
+        line_counter = 0
+        nested = False
         for line in macro.body:
             to_replace = line
+            mend_flag = False
+            if line[0:6] == symbols.MACRO_DEFINITION:
+                nested = True
+                if self.text_level == 0:
+                    mdef_line = line_counter
+                self.text_level += 1
+
+            elif line[0:5] == symbols.MACRO_END:
+                mend_flag = True
+                if self.text_level > 1:
+                    self.text_level -= 1
+                else:
+                    self.__handle_mend(macro.body, mdef_line, line_counter)
+                    nested = False
+            
             if len(actual_parameters) > 1:
                 for char in line:
                     if char == symbols.PARAMETER:
                         to_replace = to_replace.replace(
                             symbols.PARAMETER+str(counter), actual_parameters[counter])
                         counter += 1
-            self.output_file.write(to_replace+'\n')
+            if nested == False and mend_flag == False:
+                self.output_file.write(to_replace+'\n')
+            line_counter += 1

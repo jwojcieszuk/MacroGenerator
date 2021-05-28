@@ -25,4 +25,6 @@ class Log_Library:
     def incorrect_mend_usage(self):
         return "'#MEND' symbol found in input file, but #MDEF haven't been used before.\n\t Skipping this symbol."
 
+    def not_enough_actual_parameters(self, name, num_of_params):
+        return "Not enough actual parameters passed to macro:'" + name + "' required: " + str(num_of_params) + "\n\tSkipping this macro call." 
         
