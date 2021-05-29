@@ -1,0 +1,16 @@
+aaaabbaaa
+#MDEF outer
+XX$0YY
+#MDEF nested
+bub$0ubu$1
+#MDEF nestedInNested
+ajjj$0
+#MEND
+#MEND
+sadfa$1aa$2$3
+#MEND
+
+#MCALL outer QQ,WW,YY,TT
+#MCALL nested RR,AA
+#MCALL nestedInNested OO
+

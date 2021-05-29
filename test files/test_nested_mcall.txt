@@ -1,0 +1,15 @@
+aaaabbaaa
+#MDEF test
+XX$0YY
+sadfa$1aa$2$3
+#MEND
+
+#MDEF nestedCall
+aabbb$0aa
+#MCALL test VV,BB,NN,MM
+xyxyxy
+#MEND
+
+#MCALL outer QQ,WW,YY,UU
+#MCALL nestedCall YO
+

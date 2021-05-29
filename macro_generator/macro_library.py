@@ -5,10 +5,6 @@ class Macro_Library:
         self.library = []
 
     def insert(self, element: Macro):
-        for macro in self.library:
-            if macro.name == element.name:
-                print("Macro already defined")
-                return
         self.library.append(element)
 
     def get_macro(self, name):
@@ -16,5 +12,10 @@ class Macro_Library:
             if macro.name == name:
                 return macro
         return None
+
+    def print_library(self):
+        print("Macros available in library:")
+        for macro in self.library:
+            print(macro.name)
             
         
