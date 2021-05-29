@@ -50,9 +50,7 @@ class Macro_Generator:
             else:
                 for char in line:
                     if char == '#':
-                        warn = self.warning.write_warning(
-                            line_counter+1, self.log_library.incorrect_hash_usage())
-                        self.log_file.write(warn)
+                        self.warning_to_log(line_counter+1, self.log_library.incorrect_hash_usage())
 
             if self.text_level == 0 and mend_flag == False and mcall_flag == False:
                 self.output_file.write(line+"\n")
@@ -74,11 +72,11 @@ class Macro_Generator:
         splitted_line = macro_text[0].split(' ')
 
         name = splitted_line[1]
-        self.macrolib.print_library()
         """checking whether name consists only of letters [Aa-Zz]"""
         if name.strip().isalpha() == True and self.name_is_available(mdef_line, name.strip()) == True:
             body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
             self.macrolib.insert(Macro(name.strip(), body, no_of_params))
+            
         elif name == symbols.MACRO_CALL:
             concat = ' '+' '.join(splitted_line[2:])
             mcall_flag = True
@@ -86,10 +84,9 @@ class Macro_Generator:
             body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
             self.macrolib.insert(Macro(name.strip(), body, no_of_params))
             mcall_flag = False
+
         elif name.strip().isalpha() == False:
-            warn = self.warning.write_warning(
-                mdef_line+1, self.log_library.incorrect_macro_name())
-            self.log_file.write(warn)
+            self.warning_to_log(mdef_line+1, self.log_library.incorrect_macro_name())
 
     def __handle_mdef_body(self, macro_body):
         """
@@ -104,36 +101,29 @@ class Macro_Generator:
         for line in macro_body:
             line = line.strip()
             body.append(line)
+
             if line[0:6] == symbols.MACRO_DEFINITION:
                 self.text_level += 1
                 line_counter += 1
                 continue
+
             elif line[0:5] == symbols.MACRO_END:
                 self.text_level -= 1
                 line_counter += 1
                 continue
+
             if self.text_level == 0:
                 for char_index in range(len(line)):
                     """if char is '$' then it is a parameter"""
                     if line[char_index] == symbols.PARAMETER:
                         char_index += 1
                         """check whether correct digit is provided after '$' symbol"""
-                        if int(line[char_index]) == parameters_counter:
-                            parameters_counter += 1
-                        else:
-                            print("Incorrect parameter number.")
+                        if int(line[char_index]) != parameters_counter:
+                            self.warning_to_log(line_counter+1, self.log_library.incorrect_parameter_number())
+                        parameters_counter += 1
             line_counter += 1
 
         return body, parameters_counter
-
-    def __handle_mend(self, lines, mdef_line, line_counter):
-        if self.text_level < 1:
-            warn = self.warning.write_warning(
-                line_counter+1, self.log_library.incorrect_mend_usage())
-            self.log_file.write(warn)
-        else:
-            self.text_level -= 1
-            self.__handle_mdef(mdef_line, lines[mdef_line:line_counter+1])
 
     def __handle_mcall(self, line, mcall_line, mcall_flag=False):
         """
@@ -141,13 +131,11 @@ class Macro_Generator:
             if macro wasn't found in library, prints an error on this line
             else executes a macro 
         """
-        self.macrolib.print_library()
         splitted_line = line.split(' ')
         output = ""
         macro = self.macrolib.get_macro(splitted_line[1])
         if macro != None:
             if len(splitted_line) > 2:
-                #actual_parameters = splitted_line[2].split(',')
                 actual_parameters = line[len(splitted_line[1])+2:]
                 if symbols.MACRO_CALL in actual_parameters:
                     for index, char in enumerate(actual_parameters):
@@ -156,18 +144,19 @@ class Macro_Generator:
                         if char == ';':
                             semicolon_index = index
                             nested_mcall = actual_parameters[hash_index+6:semicolon_index]
-                            nested_mcall_output = self.__handle_mcall(nested_mcall, mcall_line)
+                            nested_mcall_output = self.__handle_mcall(nested_mcall, mcall_line, True)
                             substring_to_replace = actual_parameters[hash_index:semicolon_index+1]
-                    actual_parameters = actual_parameters.replace(actual_parameters[hash_index:semicolon_index+1], nested_mcall_output)
+                    actual_parameters = actual_parameters.replace(substring_to_replace, nested_mcall_output)
                 actual_parameters = actual_parameters.split(',')        
-                
+                for param in actual_parameters:
+                    if param.isalpha() == False:
+                        self.warning_to_log(mcall_line+1, self.log_library.actual_parameter_isnotalpha())
+                        return
                 output = self.__execute_macro(macro, actual_parameters, mcall_line, mcall_flag)
             else:
                 output = self.__execute_macro(macro, [], mcall_line, mcall_flag)
         else:
-            warn = self.warning.write_warning(
-                mcall_line+1, self.log_library.macro_not_found(splitted_line[1]))
-            self.log_file.write(warn)
+            self.warning_to_log(mcall_line+1, self.log_library.macro_not_found(splitted_line[1]))
         return output
 
     def __execute_macro(self, macro, actual_parameters, mcall_line, mcall_flag = False):
@@ -177,9 +166,7 @@ class Macro_Generator:
             as a result writes macro body to output file
         """
         if macro.num_of_params > len(actual_parameters):
-            warn = self.warning.write_warning(
-                mcall_line+1, self.log_library.not_enough_actual_parameters(macro.name, macro.num_of_params))
-            self.log_file.write(warn)
+            self.warning_to_log(mcall_line+1, self.log_library.not_enough_actual_parameters(macro.name, macro.num_of_params))
             return
         counter = 0
         line_counter = 0
@@ -234,14 +221,22 @@ class Macro_Generator:
             line_counter += 1
         return output
 
-
+    def __handle_mend(self, lines, mdef_line, line_counter):
+        if self.text_level < 1:
+            self.warning_to_log(line_counter+1, self.log_library.incorrect_mend_usage())
+        else:
+            self.text_level -= 1
+            self.__handle_mdef(mdef_line, lines[mdef_line:line_counter+1])
+            
     def name_is_available(self, mdef_line, name):
         if self.macrolib.get_macro(name) == None:
             return True
         else:
-            warn = self.warning.write_warning(
-                mdef_line+1, self.log_library.already_defined(name))
-            self.log_file.write(warn) 
+            self.warning_to_log(mdef_line+1, self.log_library.already_defined(name))
+
+    def warning_to_log(self, line, case):
+        warn = self.warning.write_warning(line, case)
+        self.log_file.write(warn) 
 
     def exit_program(self):
         sys.exit()

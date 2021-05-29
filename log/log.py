@@ -33,3 +33,9 @@ class Log_Library:
 
     def infinite_loop(self):
         return "Macro definition with call to itself. Possible infinite loop.\n\tExiting program."
+    
+    def actual_parameter_isnotalpha(self):
+        return "Actual parameter should consist only of [Aa-Zz] letters.\n\tSkipping this macro call."
+    
+    def incorrect_parameter_number(self):
+        return "Incorrect parameter number provided after '$' symbol.\n\tSkipping this parameter."

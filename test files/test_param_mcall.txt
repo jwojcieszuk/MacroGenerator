@@ -1,13 +1,13 @@
 aaaabbaaa
 #MDEF name
-XX$0YY
-sadfa$1aa$2$3
+X$0Y
+a$1a$2a$3
 #MEND
 #MCALL name QQ,WW,EE,RR
 
 #MDEF xyxy
-aaab$0yyyy
+A$0B
 #MEND
 
-#MCALL name #MCALL xyxy AA;,qq,EE,#MCALL xyxy AA;
+#MCALL name aa,qq,EE,#MCALL xyxy AA;
 

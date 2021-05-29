@@ -1,6 +1,6 @@
 aaaabbaaa
 #MDEF outer
-XX$0YY
+XX$2YY
 #MDEF nested
 
 #MDEF nestedInNested
