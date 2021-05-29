@@ -6,10 +6,14 @@ sadfa$1aa$2$3
 
 #MDEF nestedCall
 aabbb$0aa
+#MDEF AAAA
+zzzzz
 #MCALL test VV,BB,NN,MM
+#MEND
 xyxyxy
 #MEND
 
 #MCALL outer QQ,WW,YY,UU
 #MCALL nestedCall YO
+#MCALL AAAA
 

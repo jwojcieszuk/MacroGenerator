@@ -14,7 +14,6 @@ class Macro_Generator:
         self.error = Log()
         self.warning = Log()
         self.log_library = Log_Library()
-        self.lines_count = 1
 
     def process_file(self, file):
         """
@@ -45,9 +44,9 @@ class Macro_Generator:
                 else:
                     self.__handle_mend(lines, mdef_line, line_counter)
 
-            elif line[0:7] == symbols.MACRO_CALL:
+            elif line[0:6] == symbols.MACRO_CALL:
                 mcall_flag = True
-                self.__handle_mcall(line[7:], line_counter)
+                self.__handle_mcall(line[6:], line_counter)
             else:
                 for char in line:
                     if char == '#':
@@ -58,7 +57,6 @@ class Macro_Generator:
             if self.text_level == 0 and mend_flag == False and mcall_flag == False:
                 self.output_file.write(line+"\n")
 
-            self.lines_count += 1
             line_counter += 1
 
         self.output_file.close()
@@ -81,6 +79,13 @@ class Macro_Generator:
         if name.strip().isalpha() == True and self.name_is_available(mdef_line, name.strip()) == True:
             body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
             self.macrolib.insert(Macro(name.strip(), body, no_of_params))
+        elif name == symbols.MACRO_CALL:
+            concat = ' '+' '.join(splitted_line[2:])
+            mcall_flag = True
+            name = self.__handle_mcall(concat, mdef_line, mcall_flag)
+            body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
+            self.macrolib.insert(Macro(name.strip(), body, no_of_params))
+            mcall_flag = False
         elif name.strip().isalpha() == False:
             warn = self.warning.write_warning(
                 mdef_line+1, self.log_library.incorrect_macro_name())
@@ -130,27 +135,42 @@ class Macro_Generator:
             self.text_level -= 1
             self.__handle_mdef(mdef_line, lines[mdef_line:line_counter+1])
 
-    def __handle_mcall(self, line, mcall_line):
+    def __handle_mcall(self, line, mcall_line, mcall_flag=False):
         """
             as a input function takes line where '#MCALL ' was found.
             if macro wasn't found in library, prints an error on this line
             else executes a macro 
         """
+        self.macrolib.print_library()
         splitted_line = line.split(' ')
-
-        macro = self.macrolib.get_macro(splitted_line[0])
+        output = ""
+        macro = self.macrolib.get_macro(splitted_line[1])
         if macro != None:
-            if len(splitted_line) > 1:
-                actual_parameters = splitted_line[1].split(',')
-                self.__execute_macro(macro, actual_parameters, mcall_line)
+            if len(splitted_line) > 2:
+                #actual_parameters = splitted_line[2].split(',')
+                actual_parameters = line[len(splitted_line[1])+2:]
+                if symbols.MACRO_CALL in actual_parameters:
+                    for index, char in enumerate(actual_parameters):
+                        if char == '#':
+                            hash_index = index
+                        if char == ';':
+                            semicolon_index = index
+                            nested_mcall = actual_parameters[hash_index+6:semicolon_index]
+                            nested_mcall_output = self.__handle_mcall(nested_mcall, mcall_line)
+                            substring_to_replace = actual_parameters[hash_index:semicolon_index+1]
+                    actual_parameters = actual_parameters.replace(actual_parameters[hash_index:semicolon_index+1], nested_mcall_output)
+                actual_parameters = actual_parameters.split(',')        
+                
+                output = self.__execute_macro(macro, actual_parameters, mcall_line, mcall_flag)
             else:
-                self.__execute_macro(macro, [], mcall_line)
+                output = self.__execute_macro(macro, [], mcall_line, mcall_flag)
         else:
             warn = self.warning.write_warning(
-                mcall_line+1, self.log_library.macro_not_found(splitted_line[0]))
+                mcall_line+1, self.log_library.macro_not_found(splitted_line[1]))
             self.log_file.write(warn)
+        return output
 
-    def __execute_macro(self, macro, actual_parameters, mcall_line):
+    def __execute_macro(self, macro, actual_parameters, mcall_line, mcall_flag = False):
         """
             parameters: macro to be executed
             executing macro means remove #MCALL line and in its place add macro body with parameters placed 
@@ -164,7 +184,7 @@ class Macro_Generator:
         counter = 0
         line_counter = 0
         nested = False
-
+        output = ""
         for line in macro.body:
             to_replace = line
             mend_flag = False
@@ -186,7 +206,10 @@ class Macro_Generator:
                     line_counter +=1
                     continue
 
-            elif line[0:7] == symbols.MACRO_CALL:
+            elif line[0:6] == symbols.MACRO_CALL:
+                if self.text_level > 0:
+                    line_counter += 1
+                    continue
                 mcall_flag = True
                 temp = line.split(' ')
                 if temp[1] == macro.name:
@@ -194,7 +217,7 @@ class Macro_Generator:
                     self.log_file.write(err)
                     self.exit_program()
                 else:
-                    self.__handle_mcall(line[7:], line_counter)
+                    self.__handle_mcall(line[6:], line_counter)
                     line_counter +=1
                 continue
 
@@ -205,9 +228,12 @@ class Macro_Generator:
                             symbols.PARAMETER+str(counter), actual_parameters[counter])
                         counter += 1
             if nested == False and mend_flag == False:
-                self.output_file.write(to_replace+'\n')
+                output += to_replace
+                if mcall_flag == False:
+                    self.output_file.write(to_replace+'\n')
             line_counter += 1
-            self.lines_count += 1
+        return output
+
 
     def name_is_available(self, mdef_line, name):
         if self.macrolib.get_macro(name) == None:

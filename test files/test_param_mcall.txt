@@ -5,8 +5,9 @@ sadfa$1aa$2$3
 #MEND
 #MCALL name QQ,WW,EE,RR
 
-#MDEF #MCALL name QQ,WW,EE,RR
-dsffdf
+#MDEF xyxy
+aaab$0yyyy
 #MEND
 
-#MCALL XXQQYYsadfaWWaaEERR
+#MCALL name #MCALL xyxy AA;,qq,EE,#MCALL xyxy AA;
+

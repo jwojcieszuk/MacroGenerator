@@ -1,2 +1,0 @@
-warning! line:13 Macro with name:'outer' isn't available in the library.
-	Skipping this macro call.
