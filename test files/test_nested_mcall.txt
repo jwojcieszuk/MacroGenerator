@@ -1,19 +1,14 @@
-aaaabbaaa
-#MDEF test
-XX$0YY
-sadfa$1aa$2$3
+free text
+#MDEF X
+free$0text X
 #MEND
 
-#MDEF nestedCall
-aabbb$0aa
-#MDEF AAAA
-zzzzz
-#MCALL test VV,BB,NN,MM
-#MEND
-xyxyxy
+#MDEF Y
+free$0text Y
+#MCALL X Q
+free text Y 2
 #MEND
 
-#MCALL outer QQ,WW,YY,UU
-#MCALL nestedCall YO
-#MCALL AAAA
+#MCALL Y W
+#MCALL X R
 

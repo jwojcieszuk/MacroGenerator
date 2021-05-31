@@ -21,6 +21,8 @@ class Macro_Generator:
             once any special symbol is encountered, proper function is called
         """
         line_counter = 0
+        mdef_line = 0
+        mdef_flag = False
         self.output_file = open("output.txt", "w+")
         self.log_file = open("log.txt", "w+")
 
@@ -35,19 +37,20 @@ class Macro_Generator:
             if line[0:6] == symbols.MACRO_DEFINITION:
                 if self.text_level == 0:
                     mdef_line = line_counter
+                    mdef_flag = True
                 self.text_level += 1
 
             elif line[0:5] == symbols.MACRO_END:
                 mend_flag = True
                 if self.text_level > 1:
                     self.text_level -= 1
-                else:
+                elif mdef_line != 0:
                     self.__handle_mend(lines, mdef_line, line_counter)
 
-            elif line[0:6] == symbols.MACRO_CALL:
+            elif line[0:6] == symbols.MACRO_CALL and self.text_level == 0:
                 mcall_flag = True
                 self.__handle_mcall(line[6:], line_counter)
-            else:
+            elif self.text_level == 0:
                 for char in line:
                     if char == '#':
                         self.warning_to_log(line_counter+1, self.log_library.incorrect_hash_usage())
@@ -80,7 +83,7 @@ class Macro_Generator:
         elif name == symbols.MACRO_CALL:
             concat = ' '+' '.join(splitted_line[2:])
             mcall_flag = True
-            name = self.__handle_mcall(concat, mdef_line, mcall_flag)
+            name = self.__handle_mcall(concat.replace('\n', ''), mdef_line, mcall_flag)
             body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
             self.macrolib.insert(Macro(name.strip(), body, no_of_params))
             mcall_flag = False
@@ -131,6 +134,7 @@ class Macro_Generator:
             if macro wasn't found in library, prints an error on this line
             else executes a macro 
         """
+        self.macrolib.print_library()
         splitted_line = line.split(' ')
         output = ""
         macro = self.macrolib.get_macro(splitted_line[1])
@@ -175,6 +179,7 @@ class Macro_Generator:
         for line in macro.body:
             to_replace = line
             mend_flag = False
+            mcall_flag = False
             if line[0:6] == symbols.MACRO_DEFINITION:
                 nested = True
                 if self.text_level == 0:
@@ -200,9 +205,7 @@ class Macro_Generator:
                 mcall_flag = True
                 temp = line.split(' ')
                 if temp[1] == macro.name:
-                    err = self.error.write_error(mcall_line, self.log_library.infinite_loop())
-                    self.log_file.write(err)
-                    self.exit_program()
+                    self.error_to_log(mcall_line, self.log_library.infinite_loop())
                 else:
                     self.__handle_mcall(line[6:], line_counter)
                     line_counter +=1
@@ -238,5 +241,7 @@ class Macro_Generator:
         warn = self.warning.write_warning(line, case)
         self.log_file.write(warn) 
 
-    def exit_program(self):
+    def error_to_log(self, line, case):
+        err = self.error.write_error(line, case)
+        self.log_file.write(err)
         sys.exit()

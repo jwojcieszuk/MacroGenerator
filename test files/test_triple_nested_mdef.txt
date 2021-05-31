@@ -1,0 +1,17 @@
+#MDEF X
+free text X
+#MDEF Y
+free text Y
+#MDEF Z
+free text Z
+#MEND
+#MCALL Z
+#MEND
+#MCALL Y
+#MEND
+#MCALL X
+
+
+
+
+

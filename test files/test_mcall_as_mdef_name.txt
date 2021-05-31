@@ -1,13 +1,13 @@
-aaaabbaaa
-#MDEF name
-XX$0YY
-sadfa$1aa$2$3
+free text
+#MDEF X
+A$0B
+X$1Y$2$3
 #MEND
-#MCALL name QQ,WW,EE,RR
+#MCALL X qq,ww,ee,rr
 
-#MDEF #MCALL name QQ,WW,EE,RR
-dsffdf
+#MDEF #MCALL X a,b,c,d
+free$0text
 #MEND
 
-#MCALL XXQQYYsadfaWWaaEERR
+#MCALL AaBXbYcd 
 
