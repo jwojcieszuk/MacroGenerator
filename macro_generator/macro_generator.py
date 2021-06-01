@@ -20,9 +20,6 @@ class Macro_Generator:
         self.text_level = 0
         self.output_file = None
         self.log_file = None
-        self.error = Log()
-        self.warning = Log()
-        self.log_library = Log_Library()
 
     def process_file(self, file):
         """
@@ -31,7 +28,6 @@ class Macro_Generator:
         """
         line_counter = 0
         mdef_line = -1
-        mdef_flag = False
         self.output_file = open("output.txt", "w+")
         self.log_file = open("log.txt", "w+")
 
@@ -103,6 +99,9 @@ class Macro_Generator:
             concat = ' '+' '.join(splitted_line[2:])
             mcall_flag = True
             name = self.__handle_mcall(concat.replace('\n', ''), mdef_line, mcall_flag)
+            if ' ' in name:
+                self.warning_to_log(mdef_line+1, self.log_library.incorrect_macro_name())
+                return
             body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
             self.macrolib.insert(Macro(name.strip(), body, no_of_params))
             mcall_flag = False
@@ -155,6 +154,7 @@ class Macro_Generator:
         """
         splitted_line = line.split(' ')
         output = ""
+        substring_to_replace = ""
         macro = self.macrolib.get_macro(splitted_line[1])
         if macro != None:
             if len(splitted_line) > 2:
@@ -168,7 +168,8 @@ class Macro_Generator:
                             nested_mcall = actual_parameters[hash_index+6:semicolon_index]
                             nested_mcall_output = self.__handle_mcall(nested_mcall, mcall_line, True)
                             substring_to_replace = actual_parameters[hash_index:semicolon_index+1]
-                    actual_parameters = actual_parameters.replace(substring_to_replace, nested_mcall_output)
+                    if substring_to_replace != "":
+                        actual_parameters = actual_parameters.replace(substring_to_replace, nested_mcall_output)
                 actual_parameters = actual_parameters.split(',')        
                 for param in actual_parameters:
                     if param.isalpha() == False:
@@ -263,7 +264,6 @@ class Macro_Generator:
         self.log_file.write(err)
         sys.exit()
 
-
     def test_case(self, input_file, output_file):
         self.__init()
         self.process_file("test files/test cases/"+input_file)
@@ -279,7 +279,7 @@ class Macro_Generator:
 
     def test(self):
         counter = 0
-        test_cases = 8
+        test_cases = 10
 
         if self.test_case("test_basic.txt", "output_basic.txt"):
             counter += 1
@@ -316,8 +316,12 @@ class Macro_Generator:
         if self.test_case("test_mcall_as_param.txt", "output_mcall_as_param.txt"):
             counter += 1
             print("Test for MCALL passed as parameter completed correctly.")
-
         
+        if self.test_case("test_advanced_nesting.txt", "output_advanced_nesting.txt"):
+            counter += 1
+            print("Test for advanced nesting completed correctly.")
+
+
         if counter == test_cases:
             print("Success! All tests completed correctly.")
 

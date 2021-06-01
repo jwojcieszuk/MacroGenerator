@@ -15,13 +15,13 @@ if __name__ == '__main__':
         help="test program",
     )
     args = parser.parse_args()
+    
     if (args.test):
         macrogen = Macro_Generator()
         macrogen.test()
     elif (args.input):
         macrogen = Macro_Generator()
-        # macrogen.process_file("input.txt")
-        macrogen.process_file("test files/test cases/test_redefinition.txt")
+        macrogen.process_file("input.txt")
         
 
 
