@@ -1,0 +1,15 @@
+#MDEF X
+free $0 text X
+#MDEF Y
+free $0 text $1 Y
+#MDEF Z
+free $0 text Z
+#MEND
+#MEND
+more $1 free $2 text $3 X 
+#MEND
+
+#MCALL X QQ,WW,YY,TT
+#MCALL Y RR,AA
+#MCALL Z OO
+

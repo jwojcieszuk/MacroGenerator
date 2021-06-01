@@ -1,0 +1,6 @@
+#MDEF A
+free $0 text $1 A
+#MEND
+free text
+#MCALL A X,Y
+

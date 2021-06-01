@@ -1,0 +1,12 @@
+#MDEF X
+X$0Y
+a$1a$2a$3
+#MEND
+#MCALL X QQ,WW,EE,RR
+
+#MDEF Y
+C$0V
+#MEND
+
+#MCALL X aa,qq,EE,#MCALL Y AA;
+

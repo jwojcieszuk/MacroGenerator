@@ -1,0 +1,12 @@
+#MD invalid
+free text
+
+
+xxx#MDEF invalid
+free text
+
+cccc#MCALL invalid qq,ww,ee,rr
+
+#MDEF#MCALL invalid
+free text
+

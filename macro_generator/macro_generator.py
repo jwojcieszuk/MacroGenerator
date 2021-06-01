@@ -15,13 +15,22 @@ class Macro_Generator:
         self.warning = Log()
         self.log_library = Log_Library()
 
+    def __init(self):
+        self.macrolib = Macro_Library()
+        self.text_level = 0
+        self.output_file = None
+        self.log_file = None
+        self.error = Log()
+        self.warning = Log()
+        self.log_library = Log_Library()
+
     def process_file(self, file):
         """
             function for processing every single line of input file
             once any special symbol is encountered, proper function is called
         """
         line_counter = 0
-        mdef_line = 0
+        mdef_line = -1
         mdef_flag = False
         self.output_file = open("output.txt", "w+")
         self.log_file = open("log.txt", "w+")
@@ -44,16 +53,26 @@ class Macro_Generator:
                 mend_flag = True
                 if self.text_level > 1:
                     self.text_level -= 1
-                elif mdef_line != 0:
+                elif mdef_line != -1:
                     self.__handle_mend(lines, mdef_line, line_counter)
+                else:
+                    self.warning_to_log(line_counter+1, self.log_library.mend_usage_without_mdef())
 
             elif line[0:6] == symbols.MACRO_CALL and self.text_level == 0:
                 mcall_flag = True
                 self.__handle_mcall(line[6:], line_counter)
-            elif self.text_level == 0:
-                for char in line:
-                    if char == '#':
-                        self.warning_to_log(line_counter+1, self.log_library.incorrect_hash_usage())
+
+            elif symbols.MACRO_DEFINITION in line:
+                self.warning_to_log(line_counter+1, self.log_library.incorrect_mdef_usage())
+
+            elif symbols.MACRO_END in line:
+                self.warning_to_log(line_counter+1, self.log_library.incorrect_mend_usage())
+
+            elif symbols.MACRO_CALL in line and self.text_level == 0:
+                self.warning_to_log(line_counter+1, self.log_library.incorrect_mcall_usage())
+
+            elif '#' in line and self.text_level == 0:
+                self.warning_to_log(line_counter+1, self.log_library.incorrect_hash_usage())
 
             if self.text_level == 0 and mend_flag == False and mcall_flag == False:
                 self.output_file.write(line+"\n")
@@ -94,7 +113,7 @@ class Macro_Generator:
     def __handle_mdef_body(self, macro_body):
         """
             function used to handle macro body text
-            returns body with parameters symbol removed and parameters positions
+            returns body with parameters counted
         """
         parameters_counter = 0
         line_counter = 0
@@ -134,7 +153,6 @@ class Macro_Generator:
             if macro wasn't found in library, prints an error on this line
             else executes a macro 
         """
-        self.macrolib.print_library()
         splitted_line = line.split(' ')
         output = ""
         macro = self.macrolib.get_macro(splitted_line[1])
@@ -179,7 +197,6 @@ class Macro_Generator:
         for line in macro.body:
             to_replace = line
             mend_flag = False
-            mcall_flag = False
             if line[0:6] == symbols.MACRO_DEFINITION:
                 nested = True
                 if self.text_level == 0:
@@ -202,7 +219,7 @@ class Macro_Generator:
                 if self.text_level > 0:
                     line_counter += 1
                     continue
-                mcall_flag = True
+                
                 temp = line.split(' ')
                 if temp[1] == macro.name:
                     self.error_to_log(mcall_line, self.log_library.infinite_loop())
@@ -245,3 +262,62 @@ class Macro_Generator:
         err = self.error.write_error(line, case)
         self.log_file.write(err)
         sys.exit()
+
+
+    def test_case(self, input_file, output_file):
+        self.__init()
+        self.process_file("test files/test cases/"+input_file)
+        with open("output.txt") as o:
+            out = o.readlines()
+        with open("test files/desired_output/"+output_file) as f:
+            desired_out = f.readlines()
+        o.close()
+        f.close()
+        if (out == desired_out):
+            return True
+        return False
+
+    def test(self):
+        counter = 0
+        test_cases = 8
+
+        if self.test_case("test_basic.txt", "output_basic.txt"):
+            counter += 1
+            print("Basic test completed correctly.")
+
+        if self.test_case("test_redefinition.txt", "output_redefinition.txt"):
+            counter += 1
+            print("Redefinition test completed correctly.")
+
+        if self.test_case("test_mcall_as_param.txt", "output_mcall_as_param.txt"):
+            counter += 1
+            print("Test for MCALL passed as parameter completed correctly.")
+
+        if self.test_case("test_incorrect_syntax.txt", "output_incorrect_syntax.txt"):
+            counter += 1
+            print("Test for incorrect syntax completed correctly.")
+
+        if self.test_case("test_triple_nested_mdef.txt", "output_triple_nested_mdef.txt"):
+            counter += 1
+            print("Test for triple nested mdef completed correctly.")
+
+        if self.test_case("test_nested_mcall.txt", "output_nested_mcall.txt"):
+            counter += 1
+            print("Test for nested mcall completed correctly.")
+            
+        if self.test_case("test_mcall_as_mdef_name.txt", "output_mcall_as_mdef_name.txt"):
+            counter += 1
+            print("Test for MCALL as MDEF name completed correctly.")
+
+        if self.test_case("test_nested_params.txt", "output_nested_params.txt"):
+            counter += 1
+            print("Test for nested parameters completed correctly.")          
+
+        if self.test_case("test_mcall_as_param.txt", "output_mcall_as_param.txt"):
+            counter += 1
+            print("Test for MCALL passed as parameter completed correctly.")
+
+        
+        if counter == test_cases:
+            print("Success! All tests completed correctly.")
+

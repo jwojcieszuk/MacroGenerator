@@ -9,5 +9,5 @@ X$1Y$2$3
 free$0text
 #MEND
 
-#MCALL AaBXbYcd 
+#MCALL AaBXbYcd z
 

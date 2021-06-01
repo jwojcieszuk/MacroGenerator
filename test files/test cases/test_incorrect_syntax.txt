@@ -7,19 +7,12 @@ xxx#MDEF invalid
 free text
 #MEND
 
-
-#MDEF invalid
-free text
-#END
-
-#MDEF invalid
-free text
-xxxx#MEND
-
-
 cccc#MCALL invalid qq,ww,ee,rr
 
 #MDEF#MCALL invalid
 free text
 #MEND
 
+#MDEF invalid
+free text
+xxxx#MEND

@@ -1,0 +1,9 @@
+#MDEF X
+A$0B
+#MEND
+
+#MDEF X
+A$0B
+#MEND
+
+#MCALL X w

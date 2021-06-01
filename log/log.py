@@ -22,8 +22,17 @@ class Log_Library:
     def incorrect_hash_usage(self):
         return "Incorrect '#' usage.\n\tTo use any macro operation, it has to be provided at the beggining of the line.\n\tTreating it as a free text."
     
-    def incorrect_mend_usage(self):
+    def mend_usage_without_mdef(self):
         return "'#MEND' symbol found in input file, but #MDEF haven't been used before.\n\tSkipping this symbol."
+    
+    def incorrect_mcall_usage(self):
+        return "'#MCALL' symbol found not at the beggining of the line.\n\tSkipping this symbol."
+
+    def incorrect_mend_usage(self):
+        return "'#MEND' symbol found not at the beggining of the line.\n\tSkipping this symbol."
+    
+    def incorrect_mdef_usage(self):
+        return "'#MDEF' symbol found not at the beggining of the line.\n\tSkipping this symbol."
 
     def not_enough_actual_parameters(self, name, num_of_params):
         return "Not enough actual parameters passed to macro:'" + name + "' required: " + str(num_of_params) + "\n\tSkipping this macro call." 
@@ -39,3 +48,5 @@ class Log_Library:
     
     def incorrect_parameter_number(self):
         return "Incorrect parameter number provided after '$' symbol.\n\tSkipping this parameter."
+
+        

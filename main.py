@@ -1,8 +1,28 @@
 
-import optparse
-import sys
+import argparse
 from macro_generator.macro_generator import Macro_Generator
 
 if __name__ == '__main__':
-    test = Macro_Generator()
-    test.process_file("test files/test_nested_mcall.txt")
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-input",
+        action="store_true",
+        help="input file",
+    )
+    parser.add_argument(
+        "-test",
+        action="store_true",
+        help="test program",
+    )
+    args = parser.parse_args()
+    if (args.test):
+        macrogen = Macro_Generator()
+        macrogen.test()
+    elif (args.input):
+        macrogen = Macro_Generator()
+        # macrogen.process_file("input.txt")
+        macrogen.process_file("test files/test cases/test_redefinition.txt")
+        
+
+
+    
