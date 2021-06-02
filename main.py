@@ -1,4 +1,3 @@
-
 import argparse
 from macro_generator.macro_generator import Macro_Generator
 
@@ -16,10 +15,10 @@ if __name__ == '__main__':
     )
     args = parser.parse_args()
     
-    if (args.test):
+    if args.test:
         macrogen = Macro_Generator()
         macrogen.test()
-    elif (args.input):
+    elif args.input:
         macrogen = Macro_Generator()
         macrogen.process_file("input.txt")
         
