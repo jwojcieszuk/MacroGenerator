@@ -5,7 +5,9 @@ free $0 text $1 Y
 #MDEF Z
 free $0 text Z
 #MEND
+#MCALL Z XD
 #MEND
+#MCALL Y A,B
 more $1 free $2 text $3 X 
 #MEND
 

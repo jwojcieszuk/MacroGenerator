@@ -58,6 +58,7 @@ class Macro_Generator:
             elif line[0:6] == symbols.MACRO_CALL and self.text_level == 0:
                 mcall_flag = True
                 self.__handle_mcall(line[6:], line_counter)
+                self.macrolib.remove_nested()
 
             elif symbols.MACRO_DEFINITION in line:
                 self.__write_warning(
@@ -83,7 +84,7 @@ class Macro_Generator:
         self.output_file.close()
         self.log_file.close()
 
-    def __handle_mdef(self, mdef_line, macro_text):
+    def __handle_mdef(self, mdef_line, macro_text, nested):
         """
             function used to validate syntax
             if it is correct, inserts macro to library
@@ -95,7 +96,7 @@ class Macro_Generator:
         # checking whether name consists only of letters [Aa-Zz]
         if name.strip().isalpha() == True and self.__is_name_available(mdef_line, name.strip()) == True:
             body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
-            self.macrolib.insert(Macro(name.strip(), body, no_of_params))
+            self.macrolib.insert(Macro(name.strip(), body, no_of_params, nested))
         
         # checking whether #MCALL was provided as macro name
         elif name == symbols.MACRO_CALL:
@@ -108,7 +109,7 @@ class Macro_Generator:
                     mdef_line+1, self.log_library.incorrect_macro_name())
                 return
             body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
-            self.macrolib.insert(Macro(name.strip(), body, no_of_params))
+            self.macrolib.insert(Macro(name.strip(), body, no_of_params, nested))
             mcall_flag = False
 
         elif name.strip().isalpha() == False:
@@ -223,6 +224,7 @@ class Macro_Generator:
         line_counter = 0
         nested = False
         output = ""
+        to_remove = []
         for line in macro.body:
             to_replace = line
             mend_flag = False
@@ -240,7 +242,7 @@ class Macro_Generator:
                 if self.text_level > 1:
                     self.text_level -= 1
                 else:
-                    self.__handle_mend(macro.body, mdef_line, line_counter)
+                    self.__handle_mend(macro.body, mdef_line, line_counter, nested)
                     nested = False
                     line_counter += 1
                     continue
@@ -272,15 +274,16 @@ class Macro_Generator:
                 if mcall_flag == False:
                     self.output_file.write(to_replace+'\n')
             line_counter += 1
+        
         return output
 
-    def __handle_mend(self, lines, mdef_line, line_counter):
+    def __handle_mend(self, lines, mdef_line, line_counter, nested=False):
         if self.text_level < 1:
             self.__write_warning(
                 line_counter+1, self.log_library.incorrect_mend_usage())
         else:
             self.text_level -= 1
-            self.__handle_mdef(mdef_line, lines[mdef_line:line_counter+1])
+            self.__handle_mdef(mdef_line, lines[mdef_line:line_counter+1], nested)
 
     def __is_name_available(self, mdef_line, name):
         if self.macrolib.get_macro(name) == None:
@@ -319,42 +322,64 @@ class Macro_Generator:
         if self.__test_case("test_basic.txt", "output_basic.txt"):
             counter += 1
             print("Basic test completed correctly.")
+        else:
+            print("Wrong! Basic test completed incorrectly.")
 
         if self.__test_case("test_redefinition.txt", "output_redefinition.txt"):
             counter += 1
             print("Redefinition test completed correctly.")
+        else:
+            print("Wrong! Redefinition test completed incorrectly.")
 
         if self.__test_case("test_mcall_as_param.txt", "output_mcall_as_param.txt"):
             counter += 1
             print("Test for MCALL passed as parameter completed correctly.")
+        else:
+            print("Wrong! Test for MCALL passed as parameter completed incorrectly.")
 
         if self.__test_case("test_incorrect_syntax.txt", "output_incorrect_syntax.txt"):
             counter += 1
             print("Test for incorrect syntax completed correctly.")
+        else:
+            print("Wrong! Test for incorrect syntax completed incorrectly.")
 
         if self.__test_case("test_triple_nested_mdef.txt", "output_triple_nested_mdef.txt"):
             counter += 1
             print("Test for triple nested mdef completed correctly.")
+        else:
+            print("Wrong! Test for triple nested mdef completed incorrectly.")
 
         if self.__test_case("test_nested_mcall.txt", "output_nested_mcall.txt"):
             counter += 1
             print("Test for nested mcall completed correctly.")
+        else:
+            print("Wrong! Test for nested mcall completed incorrectly.")
 
         if self.__test_case("test_mcall_as_mdef_name.txt", "output_mcall_as_mdef_name.txt"):
             counter += 1
             print("Test for MCALL as MDEF name completed correctly.")
+        else:
+            print("Wrong! Test for MCALL as MDEF name completed incorrectly.")
 
         if self.__test_case("test_nested_params.txt", "output_nested_params.txt"):
             counter += 1
             print("Test for nested parameters completed correctly.")
+        else:
+            print("Wrong! Test for nested parameters completed incorrectly.")
 
         if self.__test_case("test_mcall_as_param.txt", "output_mcall_as_param.txt"):
             counter += 1
             print("Test for MCALL passed as parameter completed correctly.")
+        else:
+            print("Wrong! Test for MCALL passed as parameter completed incorrectly.")
 
         if self.__test_case("test_advanced_nesting.txt", "output_advanced_nesting.txt"):
             counter += 1
             print("Test for advanced nesting completed correctly.")
+        else:
+            print("Wrong! Test for advanced nesting completed incorrectly.")
 
         if counter == test_cases:
             print("Success! All tests completed correctly.")
+        else:
+            print("Wrong! Some tests failed.")

@@ -17,5 +17,10 @@ class Macro_Library:
         print("Macros available in library:")
         for macro in self.library:
             print(macro.name)
+    
+    def remove_nested(self):
+        for macro in self.library:
+            if macro.nested:
+                self.library.remove(macro)
             
         

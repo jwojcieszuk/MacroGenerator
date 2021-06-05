@@ -3,3 +3,4 @@ freeargAtext A
 freetextBargB
 free text C
 freetextBnestedParam
+freetextBargB

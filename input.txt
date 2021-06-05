@@ -1,12 +1,15 @@
-#MDEF X
-X$0Y
-a$1a$2a$3
+#MDEF A
+free$0text A
+#MDEF B
+freetextB$0
 #MEND
-#MCALL X QQ,WW,EE,RR
-
-#MDEF Y
-C$0V
+#MCALL B argB
+#MDEF #MCALL B argB
+free text C
+$0
+#MEND
+#MCALL freetextBargB #MCALL B nestedParam;
+#MCALL B argB
 #MEND
 
-#MCALL X aa,qq,EE,#MCALL Y AA;
-
+#MCALL A argA

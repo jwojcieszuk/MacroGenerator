@@ -8,7 +8,8 @@ freetextB$0
 free text C
 $0
 #MEND
+#MCALL freetextBargB #MCALL B nestedParam;
+#MCALL B argB
 #MEND
 
 #MCALL A argA
-#MCALL freetextBargB #MCALL B nestedParam;
