@@ -3,7 +3,7 @@ from .macro import Macro
 from log.log import Log, Log_Library
 import symbols
 import sys
-
+import os
 
 class Macro_Generator:
 
@@ -27,6 +27,10 @@ class Macro_Generator:
             once any special symbol is encountered, proper function is called
             reads from input file and writes to output and log files
         """
+        if os.path.getsize(file) == 0:
+            print("Error! Input file is empty.")
+            return
+
         line_counter = 0
         mdef_line = -1
         self.output_file = open("output.txt", "w+")
@@ -80,9 +84,23 @@ class Macro_Generator:
                 self.output_file.write(line+"\n")
 
             line_counter += 1
-
-        self.output_file.close()
         self.log_file.close()
+        self.output_file.close()
+        self.__print_err_to_console()
+        
+        
+    def __print_err_to_console(self):
+        read_errors = open("log.txt", "r")
+        
+        messages = read_errors.readlines()
+        if messages:
+            print("----------------------------")
+            print("Warnings and errors")
+            print("----------------------------")
+            for msg in messages:
+                print(msg)
+            print("----------------------------")
+        read_errors.close()
 
     def __handle_mdef(self, mdef_line, macro_text, nested):
         """
@@ -319,66 +337,86 @@ class Macro_Generator:
         counter = 0
         test_cases = 10
 
+        print("Performing basic test...")
         if self.__test_case("test_basic.txt", "output_basic.txt"):
             counter += 1
             print("Basic test completed correctly.")
         else:
             print("Wrong! Basic test completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing redefinition test...")
         if self.__test_case("test_redefinition.txt", "output_redefinition.txt"):
             counter += 1
             print("Redefinition test completed correctly.")
         else:
             print("Wrong! Redefinition test completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing MCALL passed as parameter test...")
         if self.__test_case("test_mcall_as_param.txt", "output_mcall_as_param.txt"):
             counter += 1
             print("Test for MCALL passed as parameter completed correctly.")
         else:
             print("Wrong! Test for MCALL passed as parameter completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing incorrect syntax test...")
         if self.__test_case("test_incorrect_syntax.txt", "output_incorrect_syntax.txt"):
             counter += 1
             print("Test for incorrect syntax completed correctly.")
         else:
             print("Wrong! Test for incorrect syntax completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing triple nested MDEF test...")
         if self.__test_case("test_triple_nested_mdef.txt", "output_triple_nested_mdef.txt"):
             counter += 1
             print("Test for triple nested mdef completed correctly.")
         else:
             print("Wrong! Test for triple nested mdef completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing nested MCALL test...")
         if self.__test_case("test_nested_mcall.txt", "output_nested_mcall.txt"):
             counter += 1
             print("Test for nested mcall completed correctly.")
         else:
             print("Wrong! Test for nested mcall completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing mcall as mdef name test...")
         if self.__test_case("test_mcall_as_mdef_name.txt", "output_mcall_as_mdef_name.txt"):
             counter += 1
             print("Test for MCALL as MDEF name completed correctly.")
         else:
             print("Wrong! Test for MCALL as MDEF name completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing nested params test...")
         if self.__test_case("test_nested_params.txt", "output_nested_params.txt"):
             counter += 1
             print("Test for nested parameters completed correctly.")
         else:
             print("Wrong! Test for nested parameters completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing mcall as param test...")
         if self.__test_case("test_mcall_as_param.txt", "output_mcall_as_param.txt"):
             counter += 1
             print("Test for MCALL passed as parameter completed correctly.")
         else:
             print("Wrong! Test for MCALL passed as parameter completed incorrectly.")
 
+        print("----------------------------")
+        print("Performing advanced nesting test...")
         if self.__test_case("test_advanced_nesting.txt", "output_advanced_nesting.txt"):
             counter += 1
             print("Test for advanced nesting completed correctly.")
         else:
             print("Wrong! Test for advanced nesting completed incorrectly.")
 
+        print("----------------------------")
         if counter == test_cases:
             print("Success! All tests completed correctly.")
         else:

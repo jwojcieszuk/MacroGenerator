@@ -1,15 +1,12 @@
-#MDEF A
-free$0text A
-#MDEF B
-freetextB$0
-#MEND
-#MCALL B argB
-#MDEF #MCALL B argB
-free text C
-$0
-#MEND
-#MCALL freetextBargB #MCALL B nestedParam;
-#MCALL B argB
-#MEND
+#MD invalid
+free text
 
-#MCALL A argA
+
+xxx#MDEF invalid
+free text
+
+cccc#MCALL invalid qq,ww,ee,rr
+
+#MDEF#MCALL invalid
+free text
+
