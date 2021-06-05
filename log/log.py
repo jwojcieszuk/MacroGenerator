@@ -1,16 +1,10 @@
-class Log:
-    def __init__(self, line=0, message=""):
-        self.line = line
-        self.message = message
-
-
 class Log_Library:
 
     def __init__(self) -> None:
         pass
     
     def incorrect_macro_name(self):
-        return "Incorrect macro name.\n\t Proper name should consist only of [Aa-Zz] letters.\n\tSkipping this macro definition."
+        return "Incorrect macro name.\n\t Proper name should consist only of [Aa-Zz] letters.\n\t"
 
     def macro_not_found(self, name):
         return "Macro with name:'" + name + "' " + "isn't available in the library.\n\tSkipping this macro call."

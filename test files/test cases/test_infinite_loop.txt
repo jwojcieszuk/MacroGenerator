@@ -1,0 +1,5 @@
+#MDEF A
+#MCALL A
+free text A
+#MEND
+#MCALL A

@@ -1,6 +1,6 @@
 from .macro_library import Macro_Library
 from .macro import Macro
-from log.log import Log, Log_Library
+from log.log import Log_Library
 import symbols
 import sys
 import os
@@ -113,8 +113,8 @@ class Macro_Generator:
 
         # checking whether name consists only of letters [Aa-Zz]
         if name.strip().isalpha() == True and self.__is_name_available(mdef_line, name.strip()) == True:
-            body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
-            self.macrolib.insert(Macro(name.strip(), body, no_of_params, nested))
+            body, no_of_params = self.__handle_positional_parameters(macro_text[1:-1])
+            self.macrolib.append(Macro(name.strip(), body, no_of_params, nested))
         
         # checking whether #MCALL was provided as macro name
         elif name == symbols.MACRO_CALL:
@@ -126,15 +126,15 @@ class Macro_Generator:
                 self.__write_warning(
                     mdef_line+1, self.log_library.incorrect_macro_name())
                 return
-            body, no_of_params = self.__handle_mdef_body(macro_text[1:-1])
-            self.macrolib.insert(Macro(name.strip(), body, no_of_params, nested))
+            body, no_of_params = self.__handle_positional_parameters(macro_text[1:-1])
+            self.macrolib.append(Macro(name.strip(), body, no_of_params, nested))
             mcall_flag = False
 
         elif name.strip().isalpha() == False:
             self.__write_warning(
                 mdef_line+1, self.log_library.incorrect_macro_name())
 
-    def __handle_mdef_body(self, macro_body):
+    def __handle_positional_parameters(self, macro_body):
         """
             function used to handle macro body text
             returns body with parameters counted
@@ -317,7 +317,7 @@ class Macro_Generator:
 
     def __write_error(self, line, case):
         err = self.log_library.error(line, case)
-        self.log_file.write(err)
+        print(err)
         sys.exit()
 
     def __test_case(self, input_file, output_file):
