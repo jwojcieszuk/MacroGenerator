@@ -14,8 +14,6 @@ if __name__ == '__main__':
         help="test program",
     )
     args = parser.parse_args()
-    macrogen = Macro_Generator()
-    macrogen.process_file("input.txt")
     if args.test:
         macrogen = Macro_Generator()
         macrogen.test()
